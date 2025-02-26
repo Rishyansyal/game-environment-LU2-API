@@ -1,15 +1,15 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using WebApi;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace WebApi.Controllers;
+namespace ProjectMap.WebApi.Controllers;
 
 [ApiController]
 [Route("EnvironmentCreator")]
-public class WeatherForecastController : ControllerBase
+public class EnvironmentObjectsController : ControllerBase
 {
-    private static List<EnvironmentCreator> weatherForecasts = new List<EnvironmentCreator>() 
+    private static List<EnvironmentCreator> weatherForecasts = new List<EnvironmentCreator>()
     {
         new EnvironmentCreator()
         {
@@ -59,7 +59,7 @@ public class WeatherForecastController : ControllerBase
     [HttpPost(Name = "CreateWeatherForecast")]
     public ActionResult Add(EnvironmentCreator weatherForecast)
     {
-        if(GetWeatherForecast(weatherForecast.Date) != null)
+        if (GetWeatherForecast(weatherForecast.Date) != null)
             return BadRequest("Weather forecast for date " + weatherForecast.Date + " already exists.");
 
         weatherForecasts.Add(weatherForecast);
@@ -70,7 +70,7 @@ public class WeatherForecastController : ControllerBase
     [HttpPut("{date:datetime}", Name = "UpdateWeatherForecastByDate")]
     public IActionResult Update(DateOnly date, EnvironmentCreator newWeatherForeCast)
     {
-        if(date != newWeatherForeCast.Date)
+        if (date != newWeatherForeCast.Date)
             return BadRequest("The id of the object did not match the id of the route");
 
         EnvironmentCreator weatherForeCastToUpdate = GetWeatherForecast(newWeatherForeCast.Date);
