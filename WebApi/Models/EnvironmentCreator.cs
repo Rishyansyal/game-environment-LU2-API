@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebApi;
+namespace WebApi.Models;
 
 public class EnvironmentCreator
 {
@@ -9,7 +9,7 @@ public class EnvironmentCreator
     public DateOnly Date { get; set; }
 
 
-    [Range(-25,50)]
+    [Range(-25, 50)]
     public int TemperatureC { get; set; }
 
 

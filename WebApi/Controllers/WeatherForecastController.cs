@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
-using WebApi;
+using WebApi.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApi.Controllers;

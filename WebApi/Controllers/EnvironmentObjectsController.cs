@@ -1,107 +1,99 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using WebApi;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using WebApi.Models;
 
-namespace ProjectMap.WebApi.Controllers;
-
-[ApiController]
-[Route("EnvironmentCreator")]
-public class EnvironmentObjectsController : ControllerBase
+namespace WebApi.Controllers
 {
-    private static List<EnvironmentCreator> weatherForecasts = new List<EnvironmentCreator>()
+    [ApiController]
+    [Route("EnvironmentObject")]
+    public class EnvironmentObjectsController : ControllerBase
     {
-        new EnvironmentCreator()
+        private static List<EnvironmentObject> environmentObjects = new List<EnvironmentObject>()
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            TemperatureC = 20,
-            Summary = "Perfect day for a walk."
-        },
-        new EnvironmentCreator()
+            new EnvironmentObject()
+            {
+                Id = 213132,
+                WorldId = 432,
+                ObjectType = "Tree",
+                X_Position = 1.0f,
+                Y_Position = 2.0f,
+                Rotation = 3.0f
+            }
+        };
+
+        private readonly ILogger<EnvironmentObjectsController> _logger;
+
+        public EnvironmentObjectsController(ILogger<EnvironmentObjectsController> logger)
         {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-            TemperatureC = 4,
-            Summary = "Pretty cold."
-        },
-        new EnvironmentCreator()
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
-            TemperatureC = 32,
-            Summary = "Don't stay outside for too long."
-        }
-    };
-
-
-    private readonly ILogger<WeatherForecastController> _logger;
-
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
-    {
-        _logger = logger;
-    }
-
-    [HttpGet(Name = "ReadWeatherForecasts")]
-    public ActionResult<IEnumerable<EnvironmentCreator>> Get()
-    {
-        return weatherForecasts;
-    }
-
-    [HttpGet("{date:datetime}", Name = "ReadWeatherForecastByDate")]
-    public ActionResult<EnvironmentCreator> Get(DateOnly date)
-    {
-        EnvironmentCreator weatherForeCast = GetWeatherForecast(date);
-        if (weatherForeCast == null)
-            return NotFound();
-
-        return weatherForeCast;
-    }
-
-
-    [HttpPost(Name = "CreateWeatherForecast")]
-    public ActionResult Add(EnvironmentCreator weatherForecast)
-    {
-        if (GetWeatherForecast(weatherForecast.Date) != null)
-            return BadRequest("Weather forecast for date " + weatherForecast.Date + " already exists.");
-
-        weatherForecasts.Add(weatherForecast);
-        return Created();
-    }
-
-
-    [HttpPut("{date:datetime}", Name = "UpdateWeatherForecastByDate")]
-    public IActionResult Update(DateOnly date, EnvironmentCreator newWeatherForeCast)
-    {
-        if (date != newWeatherForeCast.Date)
-            return BadRequest("The id of the object did not match the id of the route");
-
-        EnvironmentCreator weatherForeCastToUpdate = GetWeatherForecast(newWeatherForeCast.Date);
-        if (weatherForeCastToUpdate == null)
-            return NotFound();
-
-        weatherForecasts.Remove(weatherForeCastToUpdate);
-        weatherForecasts.Add(newWeatherForeCast);
-
-        return Ok();
-    }
-
-    [HttpDelete("{date:datetime}", Name = "DeleteWeatherForecastByDate")]
-    public IActionResult Update(DateOnly date)
-    {
-        EnvironmentCreator weatherForeCastToDelete = GetWeatherForecast(date);
-        if (weatherForeCastToDelete == null)
-            return NotFound();
-
-        weatherForecasts.Remove(weatherForeCastToDelete);
-        return Ok();
-    }
-
-    private EnvironmentCreator GetWeatherForecast(DateOnly date)
-    {
-        foreach (EnvironmentCreator weatherForecast in weatherForecasts)
-        {
-            if (weatherForecast.Date == date)
-                return weatherForecast;
+            _logger = logger;
         }
 
-        return null;
+        [HttpGet(Name = "ReadEnvironmentObjects")]
+        public ActionResult<IEnumerable<EnvironmentObject>> Get()
+        {
+            return environmentObjects;
+        }
+
+        [HttpGet("{id:int}", Name = "ReadEnvironmentObjectById")]
+        public ActionResult<EnvironmentObject> Get(int id)
+        {
+            EnvironmentObject? environmentObject = GetEnvironmentObject(id);
+            if (environmentObject == null)
+                return NotFound();
+
+            return environmentObject;
+        }
+
+        [HttpPost(Name = "CreateEnvironmentObject")]
+        public ActionResult Add(EnvironmentObject environmentObject)
+        {
+            if (GetEnvironmentObject(environmentObject.Id) != null)
+                return BadRequest("Environment object with ID " + environmentObject.Id + " already exists.");
+
+            environmentObjects.Add(environmentObject);
+            return CreatedAtAction(nameof(Get), new { id = environmentObject.Id }, environmentObject);
+        }
+
+        [HttpPut("{id:int}", Name = "UpdateEnvironmentObjectById")]
+        public IActionResult Update(int id, EnvironmentObject newEnvironmentObject)
+        {
+            if (id != newEnvironmentObject.Id)
+                return BadRequest("The ID of the object did not match the ID of the route");
+
+            EnvironmentObject? environmentObjectToUpdate = GetEnvironmentObject(newEnvironmentObject.Id);
+            if (environmentObjectToUpdate == null)
+                return NotFound();
+
+            environmentObjects.Remove(environmentObjectToUpdate);
+            environmentObjects.Add(newEnvironmentObject);
+
+            return Ok();
+        }
+
+        [HttpDelete("{id:int}", Name = "DeleteEnvironmentObjectById")]
+        public IActionResult Delete(int id)
+        {
+            EnvironmentObject? environmentObjectToDelete = GetEnvironmentObject(id);
+            if (environmentObjectToDelete == null)
+                return NotFound();
+
+            environmentObjects.Remove(environmentObjectToDelete);
+            return Ok();
+        }
+
+        private EnvironmentObject? GetEnvironmentObject(int id)
+        {
+            foreach (EnvironmentObject environmentObject in environmentObjects)
+            {
+                if (environmentObject.Id == id)
+                    return environmentObject;
+            }
+
+            return null;
+        }
     }
 }
+
+
