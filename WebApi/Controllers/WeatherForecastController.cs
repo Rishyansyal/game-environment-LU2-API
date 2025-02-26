@@ -3,27 +3,27 @@ using System;
 using WebApi;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ProjectMap.WebApi.Controllers;
+namespace WebApi.Controllers;
 
 [ApiController]
-[Route("Worlds")]
+[Route("EnvironmentCreator")]
 public class WeatherForecastController : ControllerBase
 {
-    private static List<Worlds> weatherForecasts = new List<Worlds>() 
+    private static List<EnvironmentCreator> weatherForecasts = new List<EnvironmentCreator>() 
     {
-        new Worlds()
+        new EnvironmentCreator()
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             TemperatureC = 20,
             Summary = "Perfect day for a walk."
         },
-        new Worlds()
+        new EnvironmentCreator()
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
             TemperatureC = 4,
             Summary = "Pretty cold."
         },
-        new Worlds()
+        new EnvironmentCreator()
         {
             Date = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
             TemperatureC = 32,
@@ -40,15 +40,15 @@ public class WeatherForecastController : ControllerBase
     }
 
     [HttpGet(Name = "ReadWeatherForecasts")]
-    public ActionResult<IEnumerable<Worlds>> Get()
+    public ActionResult<IEnumerable<EnvironmentCreator>> Get()
     {
         return weatherForecasts;
     }
 
     [HttpGet("{date:datetime}", Name = "ReadWeatherForecastByDate")]
-    public ActionResult<Worlds> Get(DateOnly date)
+    public ActionResult<EnvironmentCreator> Get(DateOnly date)
     {
-        Worlds weatherForeCast = GetWeatherForecast(date);
+        EnvironmentCreator weatherForeCast = GetWeatherForecast(date);
         if (weatherForeCast == null)
             return NotFound();
 
@@ -57,7 +57,7 @@ public class WeatherForecastController : ControllerBase
 
 
     [HttpPost(Name = "CreateWeatherForecast")]
-    public ActionResult Add(Worlds weatherForecast)
+    public ActionResult Add(EnvironmentCreator weatherForecast)
     {
         if(GetWeatherForecast(weatherForecast.Date) != null)
             return BadRequest("Weather forecast for date " + weatherForecast.Date + " already exists.");
@@ -68,12 +68,12 @@ public class WeatherForecastController : ControllerBase
 
 
     [HttpPut("{date:datetime}", Name = "UpdateWeatherForecastByDate")]
-    public IActionResult Update(DateOnly date, Worlds newWeatherForeCast)
+    public IActionResult Update(DateOnly date, EnvironmentCreator newWeatherForeCast)
     {
         if(date != newWeatherForeCast.Date)
             return BadRequest("The id of the object did not match the id of the route");
 
-        Worlds weatherForeCastToUpdate = GetWeatherForecast(newWeatherForeCast.Date);
+        EnvironmentCreator weatherForeCastToUpdate = GetWeatherForecast(newWeatherForeCast.Date);
         if (weatherForeCastToUpdate == null)
             return NotFound();
 
@@ -86,7 +86,7 @@ public class WeatherForecastController : ControllerBase
     [HttpDelete("{date:datetime}", Name = "DeleteWeatherForecastByDate")]
     public IActionResult Update(DateOnly date)
     {
-        Worlds weatherForeCastToDelete = GetWeatherForecast(date);
+        EnvironmentCreator weatherForeCastToDelete = GetWeatherForecast(date);
         if (weatherForeCastToDelete == null)
             return NotFound();
 
@@ -94,9 +94,9 @@ public class WeatherForecastController : ControllerBase
         return Ok();
     }
 
-    private Worlds GetWeatherForecast(DateOnly date)
+    private EnvironmentCreator GetWeatherForecast(DateOnly date)
     {
-        foreach (Worlds weatherForecast in weatherForecasts)
+        foreach (EnvironmentCreator weatherForecast in weatherForecasts)
         {
             if (weatherForecast.Date == date)
                 return weatherForecast;
