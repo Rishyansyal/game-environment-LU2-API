@@ -34,8 +34,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // Add authentication middleware
-app.UseAuthorization(); // Add authorization middleware
+//app.UseAuthentication(); // Add authentication middleware
+//app.UseAuthorization(); // Add authorization middleware
 
 // Map the Identity API endpoints under the 'account' prefix
 app.MapGroup("/account")

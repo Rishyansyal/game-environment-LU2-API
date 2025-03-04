@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\RegisterController.cs" />
+    <Compile Remove="Models\RegisterCreater.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Avans.Identity.DapperOrm" Version="1.0.3" />
     <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
