@@ -18,7 +18,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("register")]
-        [AllowAnonymous] // Allow anonymous access to the register endpoint
+        [AllowAnonymous] 
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
