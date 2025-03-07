@@ -6,7 +6,7 @@ using WebApi.Models;
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("Object2d")]
+    [Route("objects")]
     public class Object2dController : ControllerBase
     {
         private static List<Object2d> object2ds = new List<Object2d>()

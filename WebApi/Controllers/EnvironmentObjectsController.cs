@@ -7,19 +7,24 @@ using WebApi.Models;
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("EnvironmentObject")]
+    [Route("environments")]
     public class EnvironmentObjectsController : ControllerBase
     {
-        private static List<EnvironmentObject> environmentObjects = new List<EnvironmentObject>()
+        private static List<Environment2d> environmentObjects = new List<Environment2d>()
         {
-            new EnvironmentObject()
+            new Environment2d()
             {
-                Id = 213132,
-                WorldId = 432,
-                ObjectType = "Tree",
-                X_Position = 1.0f,
-                Y_Position = 2.0f,
-                Rotation = 3.0f
+                Id = 1,
+                Name = "Forest",
+                MaxLength = 100,
+                MaxHeigth = 200
+            },
+            new Environment2d()
+            {
+                Id = 2,
+                Name = "Desert",
+                MaxLength = 150,
+                MaxHeigth = 100
             }
         };
 
@@ -31,15 +36,15 @@ namespace WebApi.Controllers
         }
 
         [HttpGet(Name = "ReadEnvironmentObjects")]
-        public ActionResult<IEnumerable<EnvironmentObject>> Get()
+        public ActionResult<IEnumerable<Environment2d>> Get()
         {
             return environmentObjects;
         }
 
         [HttpGet("{id:int}", Name = "ReadEnvironmentObjectById")]
-        public ActionResult<EnvironmentObject> Get(int id)
+        public ActionResult<Environment2d> Get(int id)
         {
-            EnvironmentObject? environmentObject = GetEnvironmentObject(id);
+            Environment2d? environmentObject = GetEnvironmentObject(id);
             if (environmentObject == null)
                 return NotFound();
 
@@ -47,7 +52,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost(Name = "CreateEnvironmentObject")]
-        public ActionResult Add(EnvironmentObject environmentObject)
+        public ActionResult Add(Environment2d environmentObject)
         {
             if (GetEnvironmentObject(environmentObject.Id) != null)
                 return BadRequest("Environment object with ID " + environmentObject.Id + " already exists.");
@@ -57,12 +62,12 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id:int}", Name = "UpdateEnvironmentObjectById")]
-        public IActionResult Update(int id, EnvironmentObject newEnvironmentObject)
+        public IActionResult Update(int id, Environment2d newEnvironmentObject)
         {
             if (id != newEnvironmentObject.Id)
                 return BadRequest("The ID of the object did not match the ID of the route");
 
-            EnvironmentObject? environmentObjectToUpdate = GetEnvironmentObject(newEnvironmentObject.Id);
+            Environment2d? environmentObjectToUpdate = GetEnvironmentObject(newEnvironmentObject.Id);
             if (environmentObjectToUpdate == null)
                 return NotFound();
 
@@ -75,7 +80,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id:int}", Name = "DeleteEnvironmentObjectById")]
         public IActionResult Delete(int id)
         {
-            EnvironmentObject? environmentObjectToDelete = GetEnvironmentObject(id);
+            Environment2d? environmentObjectToDelete = GetEnvironmentObject(id);
             if (environmentObjectToDelete == null)
                 return NotFound();
 
@@ -83,9 +88,9 @@ namespace WebApi.Controllers
             return Ok();
         }
 
-        private EnvironmentObject? GetEnvironmentObject(int id)
+        private Environment2d? GetEnvironmentObject(int id)
         {
-            foreach (EnvironmentObject environmentObject in environmentObjects)
+            foreach (Environment2d environmentObject in environmentObjects)
             {
                 if (environmentObject.Id == id)
                     return environmentObject;
@@ -95,5 +100,7 @@ namespace WebApi.Controllers
         }
     }
 }
+
+
 
 
