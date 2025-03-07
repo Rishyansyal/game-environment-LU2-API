@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using WebApi.Models;
 
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("objects")]
+    [Route("environments/{environmentId}/objects")]
     public class Object2dController : ControllerBase
     {
         private static List<Object2d> object2ds = new List<Object2d>()
@@ -45,15 +44,16 @@ namespace WebApi.Controllers
         }
 
         [HttpGet(Name = "ReadObject2ds")]
-        public ActionResult<IEnumerable<Object2d>> Get()
+        public ActionResult<IEnumerable<Object2d>> Get(int environmentId)
         {
-            return object2ds;
+            var objectsInEnvironment = object2ds.FindAll(o => o.EnvironmentId == environmentId);
+            return objectsInEnvironment;
         }
 
         [HttpGet("{id:int}", Name = "ReadObject2dById")]
-        public ActionResult<Object2d> Get(int id)
+        public ActionResult<Object2d> Get(int environmentId, int id)
         {
-            Object2d object2d = GetObject2dById(id);
+            Object2d object2d = GetObject2dById(environmentId, id);
             if (object2d == null)
                 return NotFound();
 
@@ -61,22 +61,23 @@ namespace WebApi.Controllers
         }
 
         [HttpPost(Name = "CreateObject2d")]
-        public ActionResult Add(Object2d object2d)
+        public ActionResult Add(int environmentId, Object2d object2d)
         {
-            if (GetObject2dById(object2d.Id) != null)
+            if (GetObject2dById(environmentId, object2d.Id) != null)
                 return BadRequest("Object2d with ID " + object2d.Id + " already exists.");
 
+            object2d.EnvironmentId = environmentId;
             object2ds.Add(object2d);
-            return CreatedAtAction(nameof(Get), new { id = object2d.Id }, object2d);
+            return CreatedAtAction(nameof(Get), new { environmentId = environmentId, id = object2d.Id }, object2d);
         }
 
         [HttpPut("{id:int}", Name = "UpdateObject2dById")]
-        public IActionResult Update(int id, Object2d newObject2d)
+        public IActionResult Update(int environmentId, int id, Object2d newObject2d)
         {
             if (id != newObject2d.Id)
                 return BadRequest("The ID of the object did not match the ID of the route");
 
-            Object2d object2dToUpdate = GetObject2dById(newObject2d.Id);
+            Object2d object2dToUpdate = GetObject2dById(environmentId, newObject2d.Id);
             if (object2dToUpdate == null)
                 return NotFound();
 
@@ -87,9 +88,9 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("{id:int}", Name = "DeleteObject2dById")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(int environmentId, int id)
         {
-            Object2d object2dToDelete = GetObject2dById(id);
+            Object2d object2dToDelete = GetObject2dById(environmentId, id);
             if (object2dToDelete == null)
                 return NotFound();
 
@@ -97,11 +98,11 @@ namespace WebApi.Controllers
             return Ok();
         }
 
-        private Object2d GetObject2dById(int id)
+        private Object2d GetObject2dById(int environmentId, int id)
         {
             foreach (Object2d object2d in object2ds)
             {
-                if (object2d.Id == id)
+                if (object2d.EnvironmentId == environmentId && object2d.Id == id)
                     return object2d;
             }
 
@@ -109,4 +110,5 @@ namespace WebApi.Controllers
         }
     }
 }
+
 
