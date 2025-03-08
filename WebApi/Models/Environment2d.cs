@@ -8,5 +8,5 @@ public class Environment2d
     public int Id { get; set; }
     public string Name{ get; set; }
     public int MaxLength { get; set; } 
-    public int MaxHeigth { get; set; }
+    public int MaxHeight { get; set; }
 }

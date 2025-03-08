@@ -16,14 +16,14 @@ namespace WebApi.Controllers
                 Id = 1,
                 Name = "Forest",
                 MaxLength = 100,
-                MaxHeigth = 200
+                MaxHeight = 200
             },
             new Environment2d()
             {
                 Id = 2,
                 Name = "Desert",
                 MaxLength = 150,
-                MaxHeigth = 100
+                MaxHeight = 100
             }
         };
 
