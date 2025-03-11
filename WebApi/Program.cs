@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Repositories;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Retrieve the connection string from the configuration
-var dbConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString");
+var dbConnectionString = builder.Configuration.GetConnectionString("SqlConnectionString");
 
 // Add services to the container.
 builder.Services.AddAuthentication();
@@ -16,6 +19,12 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 // to resolve the current user.
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<IAuthenticationService, AspNetIdentityAuthenticationService>();
+
+// Register IDbConnection with a scoped lifetime
+builder.Services.AddScoped<IDbConnection>(sp => new SqlConnection(dbConnectionString));
+
+// Register the repository
+builder.Services.AddScoped<IEnvironment2DRepository, Environment2DRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -41,8 +50,7 @@ app.UseAuthorization(); // Add authorization middleware
 app.MapGroup("/account")
     .MapIdentityApi<IdentityUser>();
 
-var sqlConnectionString = builder.Configuration.GetValue<string>("SqlConnectionString");
-var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(sqlConnectionString);
+var sqlConnectionStringFound = !string.IsNullOrWhiteSpace(dbConnectionString);
 app.MapGet("/", () => $"The API is up. Connection string found: {(sqlConnectionStringFound ? "Yes" : "No")}");
 
 // Secure all controllers and endpoints with RequireAuthorization

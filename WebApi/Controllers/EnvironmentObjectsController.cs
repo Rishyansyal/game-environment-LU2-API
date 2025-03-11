@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using WebApi.Models;
+using WebApi.Repositories;  // Zorg ervoor dat deze namespace is toegevoegd
 
 namespace WebApi.Controllers
 {
@@ -9,100 +11,127 @@ namespace WebApi.Controllers
     [Route("environments")]
     public class EnvironmentObjectsController : ControllerBase
     {
-        private static List<Environment2d> environmentObjects = new List<Environment2d>()
-        {
-            new Environment2d()
-            {
-                Id = 1,
-                Name = "Forest",
-                MaxLength = 100,
-                MaxHeight = 200
-            },
-            new Environment2d()
-            {
-                Id = 2,
-                Name = "Desert",
-                MaxLength = 150,
-                MaxHeight = 100
-            }
-        };
-
+        private readonly IEnvironment2DRepository _repository;
         private readonly ILogger<EnvironmentObjectsController> _logger;
 
-        public EnvironmentObjectsController(ILogger<EnvironmentObjectsController> logger)
+        // Injecteer de repository in de constructor
+        public EnvironmentObjectsController(IEnvironment2DRepository repository, ILogger<EnvironmentObjectsController> logger)
         {
+            _repository = repository;
             _logger = logger;
         }
 
         [HttpGet(Name = "ReadEnvironmentObjects")]
-        public ActionResult<IEnumerable<Environment2d>> Get()
+        public async Task<ActionResult<IEnumerable<Environment2d>>> Get()
         {
-            return environmentObjects;
+            try
+            {
+                // Haal alle environment objects op via de repository
+                var environmentObjects = await _repository.GetAllEnvironment2DsAsync();
+                return Ok(environmentObjects);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR fetching environment objects: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpGet("{id:int}", Name = "ReadEnvironmentObjectById")]
-        public ActionResult<Environment2d> Get(int id)
+        public async Task<ActionResult<Environment2d>> Get(int id)
         {
-            Environment2d? environmentObject = GetEnvironmentObject(id);
-            if (environmentObject == null)
-                return NotFound();
-
-            return environmentObject;
+            try
+            {
+                // Haal een environment object op via de repository
+                var environmentObject = await _repository.GetWorldByIdAsync(id);
+                if (environmentObject == null)
+                {
+                    return NotFound();
+                }
+                return Ok(environmentObject);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR fetching environment object with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost(Name = "CreateEnvironmentObject")]
-        public ActionResult Add(Environment2d environmentObject)
+        public async Task<ActionResult> Add([FromBody] Environment2d environmentObject)
         {
-            if (GetEnvironmentObject(environmentObject.Id) != null)
-                return BadRequest("Environment object with ID " + environmentObject.Id + " already exists.");
+            try
+            {
+                // Controleer of het object al bestaat
+                var existingObject = await _repository.GetWorldByIdAsync(environmentObject.Id);
+                if (existingObject != null)
+                {
+                    return BadRequest($"Environment object with ID {environmentObject.Id} already exists.");
+                }
 
-            environmentObjects.Add(environmentObject);
-            return CreatedAtAction(nameof(Get), new { id = environmentObject.Id }, environmentObject);
+                // Voeg het nieuwe object toe via de repository
+                await _repository.AddWorldAsync(environmentObject);
+
+                return CreatedAtAction(nameof(Get), new { id = environmentObject.Id }, environmentObject);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR creating environment object: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPut("{id:int}", Name = "UpdateEnvironmentObjectById")]
-        public IActionResult Update(int id, Environment2d newEnvironmentObject)
+        public async Task<IActionResult> Update(int id, [FromBody] Environment2d newEnvironmentObject)
         {
             if (id != newEnvironmentObject.Id)
+            {
                 return BadRequest("The ID of the object did not match the ID of the route");
+            }
 
-            Environment2d? environmentObjectToUpdate = GetEnvironmentObject(newEnvironmentObject.Id);
-            if (environmentObjectToUpdate == null)
-                return NotFound();
+            try
+            {
+                // Haal het bestaande object op
+                var existingObject = await _repository.GetWorldByIdAsync(newEnvironmentObject.Id);
+                if (existingObject == null)
+                {
+                    return NotFound();
+                }
 
-            environmentObjects.Remove(environmentObjectToUpdate);
-            environmentObjects.Add(newEnvironmentObject);
+                // Update het object via de repository
+                await _repository.UpdateWorldAsync(newEnvironmentObject);
 
-            return Ok();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR updating environment object with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpDelete("{id:int}", Name = "DeleteEnvironmentObjectById")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            Environment2d? environmentObjectToDelete = GetEnvironmentObject(id);
-            if (environmentObjectToDelete == null)
-                return NotFound();
-
-            environmentObjects.Remove(environmentObjectToDelete);
-            return Ok();
-        }
-
-        private Environment2d? GetEnvironmentObject(int id)
-        {
-            foreach (Environment2d environmentObject in environmentObjects)
+            try
             {
-                if (environmentObject.Id == id)
-                    return environmentObject;
-            }
+                // Haal het object op
+                var environmentObject = await _repository.GetWorldByIdAsync(id);
+                if (environmentObject == null)
+                {
+                    return NotFound();
+                }
 
-            return null;
+                // Verwijder het object via de repository
+                await _repository.DeleteWorldAsync(id);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR deleting environment object with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }
-
-
-
-
-
-
-
