@@ -1,6 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using WebApi.Models;
+using WebApi.Repositories;
+using System;
 
 namespace WebApi.Controllers
 {
@@ -8,107 +12,117 @@ namespace WebApi.Controllers
     [Route("environments/{environmentId}/objects")]
     public class Object2dController : ControllerBase
     {
-        private static List<Object2d> object2ds = new List<Object2d>()
-        {
-            new Object2d()
-            {
-                Id = 1,
-                EnvironmentId = 100,
-                PrefabId = "Tree",
-                X_Position = 1.0f,
-                Y_Position = 2.0f,
-                ScaleX = 1.0f,
-                ScaleY = 1.0f,
-                RotationZ = 0.0f,
-                SortingLayer = 1
-            },
-            new Object2d()
-            {
-                Id = 2,
-                EnvironmentId = 101,
-                PrefabId = "Rock",
-                X_Position = 3.0f,
-                Y_Position = 4.0f,
-                ScaleX = 1.5f,
-                ScaleY = 1.5f,
-                RotationZ = 45.0f,
-                SortingLayer = 2
-            }
-        };
-
+        private readonly IObject2DRepository _repository;
         private readonly ILogger<Object2dController> _logger;
 
-        public Object2dController(ILogger<Object2dController> logger)
+        public Object2dController(IObject2DRepository repository, ILogger<Object2dController> logger)
         {
+            _repository = repository;
             _logger = logger;
         }
 
         [HttpGet(Name = "ReadObject2ds")]
-        public ActionResult<IEnumerable<Object2d>> Get(int environmentId)
+        public async Task<ActionResult<IEnumerable<Object2d>>> Get(int environmentId)
         {
-            var objectsInEnvironment = object2ds.FindAll(o => o.EnvironmentId == environmentId);
-            return objectsInEnvironment;
+            try
+            {
+                var objectsInEnvironment = await _repository.GetAllObject2DsAsync();
+                return Ok(objectsInEnvironment);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR fetching objects: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        [HttpGet("{id:int}", Name = "ReadObject2dById")]
-        public ActionResult<Object2d> Get(int environmentId, int id)
+        [HttpGet("{id}", Name = "ReadObject2dById")]
+        public async Task<ActionResult<Object2d>> Get(int environmentId, string id)
         {
-            Object2d object2d = GetObject2dById(environmentId, id);
-            if (object2d == null)
-                return NotFound();
-
-            return object2d;
+            try
+            {
+                var object2d = await _repository.GetObject2DByIdAsync(id);
+                if (object2d == null || object2d.EnvironmentId != environmentId)
+                {
+                    return NotFound();
+                }
+                return Ok(object2d);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR fetching object with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost(Name = "CreateObject2d")]
-        public ActionResult Add(int environmentId, Object2d object2d)
+        public async Task<ActionResult> Add(int environmentId, [FromBody] Object2d object2d)
         {
-            if (GetObject2dById(environmentId, object2d.Id) != null)
-                return BadRequest("Object2d with ID " + object2d.Id + " already exists.");
+            try
+            {
+                var existingObject = await _repository.GetObject2DByIdAsync(object2d.Id);
+                if (existingObject != null)
+                {
+                    return BadRequest($"Object2d with ID {object2d.Id} already exists.");
+                }
 
-            object2d.EnvironmentId = environmentId;
-            object2ds.Add(object2d);
-            return CreatedAtAction(nameof(Get), new { environmentId = environmentId, id = object2d.Id }, object2d);
+                object2d.EnvironmentId = environmentId;
+                await _repository.AddObject2DAsync(object2d);
+
+                return CreatedAtAction(nameof(Get), new { environmentId = environmentId, id = object2d.Id }, object2d);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR creating object: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        [HttpPut("{id:int}", Name = "UpdateObject2dById")]
-        public IActionResult Update(int environmentId, int id, Object2d newObject2d)
+        [HttpPut("{id}", Name = "UpdateObject2dById")]
+        public async Task<IActionResult> Update(int environmentId, string id, [FromBody] Object2d newObject2d)
         {
             if (id != newObject2d.Id)
-                return BadRequest("The ID of the object did not match the ID of the route");
-
-            Object2d object2dToUpdate = GetObject2dById(environmentId, newObject2d.Id);
-            if (object2dToUpdate == null)
-                return NotFound();
-
-            object2ds.Remove(object2dToUpdate);
-            object2ds.Add(newObject2d);
-
-            return Ok();
-        }
-
-        [HttpDelete("{id:int}", Name = "DeleteObject2dById")]
-        public IActionResult Delete(int environmentId, int id)
-        {
-            Object2d object2dToDelete = GetObject2dById(environmentId, id);
-            if (object2dToDelete == null)
-                return NotFound();
-
-            object2ds.Remove(object2dToDelete);
-            return Ok();
-        }
-
-        private Object2d GetObject2dById(int environmentId, int id)
-        {
-            foreach (Object2d object2d in object2ds)
             {
-                if (object2d.EnvironmentId == environmentId && object2d.Id == id)
-                    return object2d;
+                return BadRequest("The ID of the object did not match the ID of the route");
             }
 
-            return null;
+            try
+            {
+                var existingObject = await _repository.GetObject2DByIdAsync(id);
+                if (existingObject == null || existingObject.EnvironmentId != environmentId)
+                {
+                    return NotFound();
+                }
+
+                await _repository.UpdateObject2DAsync(newObject2d);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR updating object with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpDelete("{id}", Name = "DeleteObject2dById")]
+        public async Task<IActionResult> Delete(int environmentId, string id)
+        {
+            try
+            {
+                var object2d = await _repository.GetObject2DByIdAsync(id);
+                if (object2d == null || object2d.EnvironmentId != environmentId)
+                {
+                    return NotFound();
+                }
+
+                await _repository.DeleteObject2DAsync(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR deleting object with ID {id}: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
     }
 }
-
-
