@@ -19,17 +19,17 @@ namespace WebApi.Repositories
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Environment2d>> GetAllEnvironment2DsAsync()
+        public async Task<IEnumerable<Environment2d>> GetAllEnvironment2DsAsync(string userId)
         {
             try
             {
-                _logger.LogInformation("🔍 Fetching all Environment2 records...");
+                _logger.LogInformation("🔍 Fetching all Environment2 records for user...");
 
-                string sql = "SELECT Id, Name, MaxLength, MaxHeight FROM Environment2";
+                string sql = "SELECT Id, Name, MaxLength, MaxHeight, UserId FROM Environment2 WHERE UserId = @UserId";
                 if (_dbConnection.State != ConnectionState.Open) _dbConnection.Open();
-                var result = await _dbConnection.QueryAsync<Environment2d>(sql);
+                var result = await _dbConnection.QueryAsync<Environment2d>(sql, new { UserId = userId });
 
-                _logger.LogInformation($"✅ Retrieved {result.AsList().Count} Environment2 records.");
+                _logger.LogInformation($"✅ Retrieved {result.AsList().Count} Environment2 records for user.");
                 return result;
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace WebApi.Repositories
             {
                 _logger.LogInformation($"🔍 Fetching world with ID: {id}");
 
-                string sql = "SELECT Id, Name, MaxLength, MaxHeight FROM Environment2 WHERE Id = @Id";
+                string sql = "SELECT Id, Name, MaxLength, MaxHeight, UserId FROM Environment2 WHERE Id = @Id";
                 if (_dbConnection.State != ConnectionState.Open) _dbConnection.Open();
                 var world = await _dbConnection.QueryFirstOrDefaultAsync<Environment2d>(sql, new { Id = id });
 
@@ -69,7 +69,7 @@ namespace WebApi.Repositories
             {
                 _logger.LogInformation($"📝 Inserting new world with ID: {environment2D.Id}");
 
-                string sql = "INSERT INTO Environment2 (Id, Name, MaxLength, MaxHeight) VALUES (@Id, @Name, @MaxLength, @MaxHeight)";
+                string sql = "INSERT INTO Environment2 (Id, Name, MaxLength, MaxHeight, UserId) VALUES (@Id, @Name, @MaxLength, @MaxHeight, @UserId)";
 
                 if (_dbConnection.State != ConnectionState.Open) _dbConnection.Open();
 
@@ -80,7 +80,8 @@ namespace WebApi.Repositories
                         Id = environment2D.Id,
                         Name = environment2D.Name,
                         MaxLength = environment2D.MaxLength,
-                        MaxHeight = environment2D.MaxHeight
+                        MaxHeight = environment2D.MaxHeight,
+                        UserId = environment2D.UserId
                     }, transaction);
 
                     if (rowsAffected > 0)
@@ -109,7 +110,7 @@ namespace WebApi.Repositories
                 _logger.LogInformation($"🔄 Updating world with ID: {environment2D.Id}");
 
                 string sql = @"UPDATE Environment2 
-                               SET Name = @Name, MaxLength = @MaxLength, MaxHeight = @MaxHeight
+                               SET Name = @Name, MaxLength = @MaxLength, MaxHeight = @MaxHeight, UserId = @UserId
                                WHERE Id = @Id";
 
                 if (_dbConnection.State != ConnectionState.Open) _dbConnection.Open();
@@ -121,7 +122,8 @@ namespace WebApi.Repositories
                         Id = environment2D.Id,
                         Name = environment2D.Name,
                         MaxLength = environment2D.MaxLength,
-                        MaxHeight = environment2D.MaxHeight
+                        MaxHeight = environment2D.MaxHeight,
+                        UserId = environment2D.UserId
                     }, transaction);
 
                     if (rowsAffected > 0)
@@ -198,4 +200,3 @@ namespace WebApi.Repositories
         }
     }
 }
-

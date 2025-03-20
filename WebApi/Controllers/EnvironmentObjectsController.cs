@@ -13,12 +13,14 @@ namespace WebApi.Controllers
     {
         private readonly IEnvironment2DRepository _repository;
         private readonly ILogger<EnvironmentObjectsController> _logger;
+        private readonly IAuthenticationService _authenticationService;
 
-        // Injecteer de repository in de constructor
-        public EnvironmentObjectsController(IEnvironment2DRepository repository, ILogger<EnvironmentObjectsController> logger)
+        public EnvironmentObjectsController(IEnvironment2DRepository repository, ILogger<EnvironmentObjectsController> logger, IAuthenticationService authenticationService)
         {
             _repository = repository;
             _logger = logger;
+            _authenticationService = authenticationService;
+
         }
 
         [HttpGet(Name = "ReadEnvironmentObjects")]
@@ -26,8 +28,13 @@ namespace WebApi.Controllers
         {
             try
             {
-                // Haal alle environment objects op via de repository
-                var environmentObjects = await _repository.GetAllEnvironment2DsAsync();
+                var userId = _authenticationService.GetCurrentAuthenticatedUserId();
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+
+                var environmentObjects = await _repository.GetAllEnvironment2DsAsync(userId);
                 return Ok(environmentObjects);
             }
             catch (Exception ex)
@@ -42,7 +49,6 @@ namespace WebApi.Controllers
         {
             try
             {
-                // Haal een environment object op via de repository
                 var environmentObject = await _repository.GetWorldByIdAsync(id);
                 if (environmentObject == null)
                 {
@@ -62,7 +68,13 @@ namespace WebApi.Controllers
         {
             try
             {
-                // Controleer of het object al bestaat
+                var userId = _authenticationService.GetCurrentAuthenticatedUserId();
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+
+                environmentObject.UserId = userId;
                 var existingObject = await _repository.GetWorldByIdAsync(environmentObject.Id);
                 if (existingObject != null)
                 {
