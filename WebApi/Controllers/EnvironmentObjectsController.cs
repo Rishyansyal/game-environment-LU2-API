@@ -32,6 +32,7 @@ namespace WebApi.Controllers
                 if (userId == null)
                 {
                     return Unauthorized();
+                    
                 }
 
                 var environmentObjects = await _repository.GetAllEnvironment2DsAsync(userId);

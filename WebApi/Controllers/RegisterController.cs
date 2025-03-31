@@ -12,8 +12,9 @@ namespace WebApi.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
 
-        public AccountController(UserManager<IdentityUser> userManager)
+        public AccountController(UserManager<IdentityUser> userManager) 
         {
+
             _userManager = userManager;
         }
 
