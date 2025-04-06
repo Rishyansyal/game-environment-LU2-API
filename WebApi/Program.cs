@@ -12,7 +12,16 @@ var dbConnectionString = builder.Configuration.GetConnectionString("SqlConnectio
 // Add services to the container.
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization(); // Add authorization
-builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 10;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+})
+
     .AddDapperStores(options => { options.ConnectionString = dbConnectionString; });
 
 // Adding the HTTP Context accessor to be injected. This is needed by the AspNetIdentityUserRepository
