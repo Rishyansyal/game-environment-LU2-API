@@ -21,7 +21,7 @@
 
 ## Niet-Functionele Eisen - Must Have
 - [ ] Unittesten voor backend (min. 3 acceptatiecriteria)
-- [ ] Systeemtesten backend
+- [X] Systeemtesten backend
 - [X] Backend gedeployed in cloud
 - [X] Unity code op git (cloud)
 - [X] Backend code op git (cloud)
