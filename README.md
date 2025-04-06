@@ -36,7 +36,7 @@
 - [ ] Unittesten voor Unity
 
 ## Niet-Functionele Eisen - Nice to Have
-- [ ] Unity als webapplicatie
+- [X] Unity als webapplicatie
 - [ ] Systeemtesten Unity
 - [ ] Push triggert Unity:
   - [ ] Unittests
