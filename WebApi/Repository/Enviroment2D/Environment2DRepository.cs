@@ -150,7 +150,8 @@ namespace WebApi.Repositories
             try
             {
                 _logger.LogInformation($"🗑 Deleting world with ID: {id}");
-
+                // First delete all objects associated with this world
+                await DeleteObjectsWithWorldASync(id);
                 string sql = "DELETE FROM Environment2 WHERE Id = @Id";
 
                 if (_dbConnection.State != ConnectionState.Open) _dbConnection.Open();
@@ -174,6 +175,35 @@ namespace WebApi.Repositories
             catch (Exception ex)
             {
                 _logger.LogError($"❌ ERROR in DeleteWorldAsync: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task DeleteObjectsWithWorldASync(int worldId)
+        {
+            try
+            {
+                _logger.LogInformation($"🗑 Deleting objects for world with ID: {worldId}");
+                string sql = "DELETE FROM Object2D WHERE EnvironmentId = @WorldId";
+                if (_dbConnection.State != ConnectionState.Open) _dbConnection.Open();
+                using (var transaction = _dbConnection.BeginTransaction())
+                {
+                    int rowsAffected = await _dbConnection.ExecuteAsync(sql, new { WorldId = worldId }, transaction);
+                    if (rowsAffected > 0)
+                    {
+                        _logger.LogInformation("✅ Objects deleted successfully.");
+                        transaction.Commit();
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"⚠️ DELETE executed, but no rows affected.");
+                        transaction.Rollback();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR in DeleteObjectsWithWorldASync: {ex.Message}");
                 throw;
             }
         }
