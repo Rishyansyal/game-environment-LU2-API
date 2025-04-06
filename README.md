@@ -1,10 +1,10 @@
 ## Functionele Eisen - Must Have
 - [X] Registreren met unieke gebruikersnaam en sterk wachtwoord
-- [ ] Inloggen met foutmelding bij fouten
-- [ ] Nieuwe lege 2D-wereld aanmaken (naam uniek, max 5 werelden)
+- [X] Inloggen met foutmelding bij fouten
+- [X] Nieuwe lege 2D-wereld aanmaken (naam uniek, max 5 werelden)
 - [X] Overzicht eigen 2D-werelden bekijken
 - [ ] Eén 2D-wereld bekijken (correcte objecten)
-- [ ] 2D-object toevoegen (min. 3 objecten beschikbaar)
+- [X] 2D-object toevoegen (min. 3 objecten beschikbaar)
 - [ ] 2D-wereld verwijderen (inclusief objecten)
 
 ## Functionele Eisen - Should Have
