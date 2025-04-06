@@ -20,7 +20,7 @@
 - [ ] Save-knop voor wijzigingen aan objecten
 
 ## Niet-Functionele Eisen - Must Have
-- [ ] Unittesten voor backend (min. 3 acceptatiecriteria)
+- [X] Unittesten voor backend (min. 3 acceptatiecriteria)
 - [X] Systeemtesten backend
 - [X] Backend gedeployed in cloud
 - [X] Unity code op git (cloud)
