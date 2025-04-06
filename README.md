@@ -3,7 +3,7 @@
 - [X] Inloggen met foutmelding bij fouten
 - [X] Nieuwe lege 2D-wereld aanmaken (naam uniek, max 5 werelden)
 - [X] Overzicht eigen 2D-werelden bekijken
-- [ ] Eén 2D-wereld bekijken (correcte objecten)
+- [X] Eén 2D-wereld bekijken (correcte objecten)
 - [X] 2D-object toevoegen (min. 3 objecten beschikbaar)
 - [X] 2D-wereld verwijderen (inclusief objecten)
 
