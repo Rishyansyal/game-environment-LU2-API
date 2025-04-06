@@ -5,7 +5,7 @@
 - [X] Overzicht eigen 2D-werelden bekijken
 - [ ] Eén 2D-wereld bekijken (correcte objecten)
 - [X] 2D-object toevoegen (min. 3 objecten beschikbaar)
-- [ ] 2D-wereld verwijderen (inclusief objecten)
+- [X] 2D-wereld verwijderen (inclusief objecten)
 
 ## Functionele Eisen - Should Have
 - [ ] Positie, rotatie, schaal van object aanpassen
