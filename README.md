@@ -3,9 +3,9 @@
 - [X] Inloggen met foutmelding bij fouten
 - [X] Nieuwe lege 2D-wereld aanmaken (naam uniek, max 5 werelden)
 - [X] Overzicht eigen 2D-werelden bekijken
-- [ ] Eén 2D-wereld bekijken (correcte objecten)
+- [X] Eén 2D-wereld bekijken (correcte objecten)
 - [X] 2D-object toevoegen (min. 3 objecten beschikbaar)
-- [ ] 2D-wereld verwijderen (inclusief objecten)
+- [X] 2D-wereld verwijderen (inclusief objecten)
 
 ## Functionele Eisen - Should Have
 - [ ] Positie, rotatie, schaal van object aanpassen
@@ -21,7 +21,7 @@
 
 ## Niet-Functionele Eisen - Must Have
 - [ ] Unittesten voor backend (min. 3 acceptatiecriteria)
-- [ ] Systeemtesten backend
+- [X] Systeemtesten backend
 - [X] Backend gedeployed in cloud
 - [X] Unity code op git (cloud)
 - [X] Backend code op git (cloud)
@@ -36,7 +36,7 @@
 - [ ] Unittesten voor Unity
 
 ## Niet-Functionele Eisen - Nice to Have
-- [ ] Unity als webapplicatie
+- [X] Unity als webapplicatie
 - [ ] Systeemtesten Unity
 - [ ] Push triggert Unity:
   - [ ] Unittests
